@@ -29,6 +29,17 @@
             <artifactId>jline</artifactId>
             <version>0.9.94</version>
         </dependency>
+        <!-- LANGUAGES -->
+        <dependency>
+            <groupId>com.tinkerpop</groupId>
+            <artifactId>gremlin</artifactId>
+            <version>0.6-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jruby</groupId>
+            <artifactId>jruby</artifactId>
+            <version>1.5.5</version>
+        </dependency>
         <!-- TESTING -->
         <dependency>
             <groupId>junit</groupId>
