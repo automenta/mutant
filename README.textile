@@ -1,0 +1,1 @@
+Mutant supports the use of multiple JSR 223 ScriptEngines to be used over the same variable pool.
