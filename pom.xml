@@ -40,6 +40,21 @@
             <artifactId>jruby</artifactId>
             <version>1.5.5</version>
         </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
+            <version>1.7.5</version>
+        </dependency>
+        <!--<dependency>
+            <groupId>jep</groupId>
+            <artifactId>jep</artifactId>
+            <version>2.24</version>
+        </dependency>
+        <dependency>
+            <groupId>org.python</groupId>
+            <artifactId>jython</artifactId>
+            <version>2.5.1</version>
+        </dependency>-->
         <!-- TESTING -->
         <dependency>
             <groupId>junit</groupId>

@@ -1,1 +1,2 @@
 com.tinkerpop.gremlin.GremlinScriptEngineFactory
+org.codehaus.groovy.jsr223.GroovyScriptEngineFactory
