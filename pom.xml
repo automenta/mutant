@@ -8,7 +8,7 @@
     <version>0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <url>http://mutant.tinkerpop.com</url>
-    <name>Mutant: Poly-ScriptEngine Programming</name>
+    <name>Mutant: A Poly-ScriptEngine Console</name>
     <description>Mutant suppers the use of multiple JSR 223 ScriptEngines over the same variable pool. In this way, its
         possible to make use of each language's unique expressiveness when manipulating a variable pool.
     </description>
