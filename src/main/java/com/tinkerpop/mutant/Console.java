@@ -3,7 +3,9 @@ package com.tinkerpop.mutant;
 import jline.ConsoleReader;
 import jline.History;
 
-import javax.script.*;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineFactory;
+import javax.script.ScriptEngineManager;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -15,18 +17,18 @@ import java.util.List;
  */
 public class Console {
 
+    ScriptEngineManager manager = new ScriptEngineManager();
     List<ScriptEngine> scriptEngines = new ArrayList<ScriptEngine>();
     List<String> scriptNames = new ArrayList<String>();
-    Bindings bindings = new SimpleBindings();
     int currentEngine = -1;
+
 
     PrintStream output = System.out;
 
     private static final String MUTANT_HISTORY = ".mutant_history";
 
     public Console() throws Exception {
-        System.setProperty("org.jruby.embed.localvariable.behavior", "persistent");
-        ScriptEngineManager manager = new ScriptEngineManager();
+        System.setProperty("org.jruby.embed.localvariable.behavior", "global");
         for (ScriptEngineFactory factory : manager.getEngineFactories()) {
             this.output.println("Initializing " + factory.getEngineName() + "[" + factory.getLanguageName() + "]");
             this.scriptEngines.add(factory.getScriptEngine());
@@ -38,12 +40,11 @@ public class Console {
             this.currentEngine = 0;
         }
 
-        this.output.println("\nMuTanT v0.1 [?h = help]");
+        this.output.println("\nMuTanT v0.1 [" + Tokens.HELP + "= help]");
         this.primaryLoop();
     }
 
     public void primaryLoop() throws Exception {
-
 
         final ConsoleReader reader = new ConsoleReader();
         reader.setBellEnabled(false);
@@ -54,36 +55,56 @@ public class Console {
             history.setHistoryFile(new File(MUTANT_HISTORY));
             reader.setHistory(history);
         } catch (IOException e) {
-            System.err.println("Could not find history file.");
+            System.err.println("Could not find history file");
         }
 
         String line = "";
         this.output.println();
 
+        /*reader.addTriggeredAction('.', new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+                output.println();
+            }
+        });*/
 
         while (line != null) {
-            try {    // read console line
-                line = reader.readLine(this.getPrompt()).trim();
+
+            try {
+
+                line = new String();
+                boolean submit = false;
+                boolean newline = false;
+                while (!submit) {
+                    if (newline)
+                        line = line + "\n" + reader.readLine(Console.makeSpace(this.getPrompt().length() + 2));
+                    else
+                        line = line + "\n" + reader.readLine(this.getPrompt());
+                    if (line.endsWith(" .")) {
+                        newline = true;
+                        line = line.substring(0, line.length() - 2);
+                    } else {
+                        line = line.trim();
+                        submit = true;
+                    }
+                }
+
                 if (line.isEmpty())
                     continue;
                 else if (line.startsWith("?")) {
-                    if (line.equals("?q"))
+                    if (line.equals(Tokens.QUIT))
                         return;
-                    else if (line.equals("?x"))
+                    else if (line.equals(Tokens.NEXT))
                         this.moveCurrentEngine(1);
-                    else if (line.equals("?z"))
+                    else if (line.equals(Tokens.PREVIOUS))
                         this.moveCurrentEngine(-1);
-                    else if (line.equals("?b"))
+                    else if (line.equals(Tokens.BINDINGS))
                         this.printBindings();
-                    else if (line.equals("?h"))
+                    else if (line.equals(Tokens.HELP))
                         this.printHelp();
-                    else if (line.equals("?e"))
+                    else if (line.equals(Tokens.ENGINES))
                         this.printEngines();
                 } else {
-                    //getScriptEngine().setBindings(this.bindings, ScriptContext.ENGINE_SCOPE);
-                    //getScriptEngine().setBindings(this.bindings, ScriptContext.GLOBAL_SCOPE);
-                    this.output.println(getScriptEngine().eval(line, this.bindings));
-                    //this.bindings = getScriptEngine().getBindings(ScriptContext.GLOBAL_SCOPE);
+                    this.output.println(getScriptEngine().eval(line, this.manager.getBindings()));
                 }
             } catch (Exception e) {
                 this.output.println(e.getMessage());
@@ -92,11 +113,11 @@ public class Console {
     }
 
     public void printHelp() {
-        this.output.println("?z: previous engine");
-        this.output.println("?x: next engine");
-        this.output.println("?b: show bindings");
-        this.output.println("?e: show engines");
-        this.output.println("?q: quit");
+        this.output.println(Tokens.PREVIOUS + ": previous engine");
+        this.output.println(Tokens.NEXT + ": next engine");
+        this.output.println(Tokens.BINDINGS + ": show bindings");
+        this.output.println(Tokens.ENGINES + ": show engines");
+        this.output.println(Tokens.QUIT + ": quit");
 
     }
 
@@ -110,8 +131,8 @@ public class Console {
 
     public void printBindings() {
         String string = new String();
-        for (String key : this.bindings.keySet()) {
-            string = string + key + "=" + this.bindings.get(key) + "\n";
+        for (String key : this.manager.getBindings().keySet()) {
+            string = string + key + "=" + this.manager.getBindings().get(key) + "\n";
         }
         this.output.println(string.trim());
     }
@@ -135,6 +156,14 @@ public class Console {
         else
             this.currentEngine = this.currentEngine % this.scriptEngines.size();
 
+    }
+
+    public static String makeSpace(int number) {
+        String space = new String();
+        for (int i = 0; i < number; i++) {
+            space = space + " ";
+        }
+        return space;
     }
 
     public static void main(String[] args) throws Exception {
