@@ -3,6 +3,7 @@ package com.tinkerpop.mutant;
 import jline.ConsoleReader;
 import jline.History;
 
+import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
@@ -28,7 +29,7 @@ public class Console {
     private static final String MUTANT_HISTORY = ".mutant_history";
 
     public Console() throws Exception {
-        System.setProperty("org.jruby.embed.localvariable.behavior", "global");
+        System.setProperty("org.jruby.embed.localvariable.behavior", "persistent");
         for (ScriptEngineFactory factory : manager.getEngineFactories()) {
             this.output.println("Initializing " + factory.getEngineName() + "[" + factory.getLanguageName() + "]");
             this.scriptEngines.add(factory.getScriptEngine());
@@ -98,13 +99,15 @@ public class Console {
                     else if (line.equals(Tokens.PREVIOUS))
                         this.moveCurrentEngine(-1);
                     else if (line.equals(Tokens.BINDINGS))
-                        this.printBindings();
+                        this.printBindings(this.manager.getBindings());
                     else if (line.equals(Tokens.HELP))
                         this.printHelp();
                     else if (line.equals(Tokens.ENGINES))
                         this.printEngines();
                 } else {
                     this.output.println(getScriptEngine().eval(line, this.manager.getBindings()));
+                    //this.printBindings(getScriptEngine().getBindings(ScriptContext.ENGINE_SCOPE));
+                    //this.printBindings(getScriptEngine().getBindings(ScriptContext.GLOBAL_SCOPE));
                 }
             } catch (Exception e) {
                 this.output.println(e.getMessage());
@@ -129,10 +132,10 @@ public class Console {
         this.output.println(string.trim());
     }
 
-    public void printBindings() {
+    public void printBindings(Bindings bindings) {
         String string = new String();
-        for (String key : this.manager.getBindings().keySet()) {
-            string = string + key + "=" + this.manager.getBindings().get(key) + "\n";
+        for (String key : bindings.keySet()) {
+            string = string + key + "=" + bindings.get(key) + "\n";
         }
         this.output.println(string.trim());
     }
