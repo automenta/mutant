@@ -23,7 +23,6 @@ public class Console {
     List<String> scriptNames = new ArrayList<String>();
     int currentEngine = -1;
 
-
     PrintStream output = System.out;
 
     private static final String MUTANT_HISTORY = ".mutant_history";
@@ -31,7 +30,7 @@ public class Console {
     public Console() throws Exception {
         System.setProperty("org.jruby.embed.localvariable.behavior", "persistent");
         for (ScriptEngineFactory factory : manager.getEngineFactories()) {
-            this.output.println("Initializing " + factory.getEngineName() + "[" + factory.getLanguageName() + "]");
+            this.output.println("Initializing " + factory.getEngineName() + " " + factory.getEngineVersion() + " [" + factory.getLanguageName() + "]");
             this.scriptEngines.add(factory.getScriptEngine());
             this.scriptNames.add(factory.getLanguageName());
         }
@@ -62,9 +61,10 @@ public class Console {
         String line = "";
         this.output.println();
 
-        /*reader.addTriggeredAction('.', new ActionListener() {
+        /*reader.addTriggeredAction((char) 14, new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-                output.println();
+                System.out.println(event);
+                output.println("marko");
             }
         });*/
 
@@ -88,12 +88,13 @@ public class Console {
                         submit = true;
                     }
                 }
-
                 if (line.isEmpty())
                     continue;
                 else if (line.startsWith("?")) {
                     if (line.equals(Tokens.QUIT))
                         return;
+                    else if (line.equals(Tokens.DROP))
+                        this.dropCurrentEngine();
                     else if (line.equals(Tokens.NEXT))
                         this.moveCurrentEngine(1);
                     else if (line.equals(Tokens.PREVIOUS))
@@ -120,6 +121,7 @@ public class Console {
         this.output.println(Tokens.NEXT + ": next engine");
         this.output.println(Tokens.BINDINGS + ": show bindings");
         this.output.println(Tokens.ENGINES + ": show engines");
+        this.output.println(Tokens.DROP + ": drop engine");
         this.output.println(Tokens.QUIT + ": quit");
 
     }
@@ -159,6 +161,11 @@ public class Console {
         else
             this.currentEngine = this.currentEngine % this.scriptEngines.size();
 
+    }
+
+    public void dropCurrentEngine() {
+        this.scriptEngines.remove(this.currentEngine);
+        this.scriptNames.remove(this.currentEngine);
     }
 
     public static String makeSpace(int number) {
