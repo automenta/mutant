@@ -5,12 +5,12 @@ package com.tinkerpop.mutant;
  */
 public class Tokens {
 
-    protected static final String HELP = "?h";
-    protected static final String BINDINGS = "?b";
-    protected static final String DROP = "?d";
-    protected static final String ENGINES = "?e";
-    protected static final String QUIT = "?q";
-    protected static final String PREVIOUS = "?z";
-    protected static final String NEXT = "?x";
-    protected static final String VERSION = "0.1-SNAPSHOT";
+    public static final String HELP = "?h";
+    public static final String BINDINGS = "?b";
+    public static final String DROP = "?d";
+    public static final String ENGINES = "?e";
+    public static final String QUIT = "?q";
+    public static final String PREVIOUS = "?z";
+    public static final String NEXT = "?x";
+    public static final String VERSION = "0.1-SNAPSHOT";
 }
